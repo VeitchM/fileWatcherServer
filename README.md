@@ -1,14 +1,14 @@
 # File watcher server
 
-## Descriptions
+## Description
 
-It mounts a server which watches changes on files in a directory, if any change is made, it shows the file changed
+This server monitors file changes in a specified directory. When a change is detected, it displays the details of the modified file.
 
-## Use
+## Usage
 
 ### Initialization 
 
-Set the serverConfig.ts file to the wanted values then:
+Configure the server using the serverConfig.ts file with your desired settings, then initialize the project:
 
 ```npm install```
 
