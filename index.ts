@@ -3,17 +3,16 @@ import cors from "cors";
 import chokidar from "chokidar";
 import { EventEmitter } from "events";
 import fs from "fs";
+import { PORT, SERVER_URL, WATCHED_FILES } from "./serverConfig";
 
 const app = express();
-const PORT = 3000;
-const WATCHED_FILES_PATH = ".";
 
 // Serve your client-side files
-app.use(express.static("public"));
+app.use(express.static("reactLog/dist"));
 app.use(cors());
 
 // Watch for changes in the server filesystem
-const watcher = chokidar.watch(WATCHED_FILES_PATH, {
+const watcher = chokidar.watch(WATCHED_FILES, {
   ignored: /(^|[\/\\])\../, // ignore dotfiles
   persistent: true,
 });
@@ -39,7 +38,6 @@ function handleFileContent(data: string) {
   eventEmitter.emit("fileChanged", { message: "fileChanged" });
 }
 
-// Endpoint for SSE (Server-Sent Events)
 app.get("/events", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -47,24 +45,24 @@ app.get("/events", (req, res) => {
 
   const onFileChanged = () => {
     console.log("FileContent loaded", fileContent);
-
-    res.write(`data: ${fileContent}`);
+    res.write(`data:${JSON.stringify(fileContent)}\n\n`);
   };
-  // eventEmitter.on("fileChanged", onFileChanged);
-  const intervalID = setInterval(() => res.write("data: lalalalalal"), 5000);
+
+  // Send a message to the client every 5 seconds
+
+  eventEmitter.on("fileChanged", onFileChanged);
 
   // Handle client disconnect
   req.on("close", () => {
     eventEmitter.removeListener("fileChanged", onFileChanged);
-    clearInterval(intervalID);
   });
 });
 
 app.get("/log", (req, res) => {
-  res.json({ data: "This is CORS-enabled for an allowed domain." });
+  res.json({ data: fileContent });
 });
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on ${SERVER_URL}`);
 });

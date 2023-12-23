@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-const SERVER_URL = "http://localhost:3000";
+import {SERVER_URL} from "../../serverConfig"
 
 export async function appFetchLog() {
   return fetch(SERVER_URL + "/log", { method: "GET" }).then((JSON) => {
@@ -19,7 +18,8 @@ export function appSubscribeChanges(callbackOnChange: (data: any) => void) {
 
   const onMessage = (event: MessageEvent) => {
     console.log("Server message:", event.data);
-    callbackOnChange(event.data);
+    
+    callbackOnChange(JSON.parse(event.data));
   };
 
   const onError = (event: Event) => {
