@@ -19,6 +19,7 @@ const watcher = chokidar.watch(WATCHED_FILES, {
 
 const eventEmitter = new EventEmitter();
 let fileContent = "";
+let filePath = "none";
 
 // When a change is detected, loads changed in server memory and when that is finished emits event
 watcher.on("change", (path) => {
@@ -29,12 +30,13 @@ watcher.on("change", (path) => {
     }
     // Log the content to the console
     console.log(`File ${path} has been changed. Content:\n${data}`);
-    handleFileContent(data);
+    handleFileContent(data,path);
   });
 });
 
-function handleFileContent(data: string) {
+function handleFileContent(data: string,path:string) {
   fileContent = data;
+  filePath=path
   eventEmitter.emit("fileChanged", { message: "fileChanged" });
 }
 
@@ -45,7 +47,7 @@ app.get("/events", (req, res) => {
 
   const onFileChanged = () => {
     console.log("FileContent loaded", fileContent);
-    res.write(`data:${JSON.stringify(fileContent)}\n\n`);
+    res.write(`data:${JSON.stringify({data:fileContent, path:filePath})} \n\n`);
   };
 
   // Send a message to the client every 5 seconds
@@ -59,7 +61,7 @@ app.get("/events", (req, res) => {
 });
 
 app.get("/log", (req, res) => {
-  res.json({ data: fileContent });
+  res.json({ data: fileContent,path:filePath });
 });
 
 // Start the server

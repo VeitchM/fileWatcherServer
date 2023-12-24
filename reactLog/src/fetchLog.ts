@@ -17,7 +17,7 @@ export function appSubscribeChanges(callbackOnChange: (data: any) => void) {
   };
 
   const onMessage = (event: MessageEvent) => {
-    console.log("Server message:", event.data);
+    console.log("Server message:", event);
     
     callbackOnChange(JSON.parse(event.data));
   };
@@ -35,12 +35,12 @@ export function appSubscribeChanges(callbackOnChange: (data: any) => void) {
 }
 
 export function useLog() {
-  const [log, setLog] = useState("");
+  const [log, setLog] = useState({data:"",path:""});
 
   useEffect(() => {
     appFetchLog().then((data) => {
       console.log("Data on fetch", data);
-      setLog(data.data);
+      setLog(data);
     });
 
     const unsubscribe = appSubscribeChanges(setLog);

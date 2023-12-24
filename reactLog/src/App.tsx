@@ -7,8 +7,9 @@ function App() {
 
   return (
     <div className="card">
+      <h2>File changed: {log.path}</h2>
       <p>
-        <code>{log}</code>
+        <code>{log.data}</code>
       </p>
     </div>
   );
